@@ -10,6 +10,10 @@ import org.junit.Test
 import org.junit.BeforeClass
 import static org.junit.Assert.*
 
+import java.nio.file.Files
+
+import org.apache.commons.io.FileUtils
+
 class InfoZipPluginTest {
     protected static File testDataDir;
     protected static File tmpDir;
@@ -18,9 +22,11 @@ class InfoZipPluginTest {
     public static void setup() {
         // TODO: how to ask gradle what the build dir is?
         testDataDir= new File("build/testData");
+        FileUtils.deleteDirectory(testDataDir);
         testDataDir.mkdirs();
 
         tmpDir= new File("build/tmp/test");
+        FileUtils.deleteDirectory(tmpDir);
         tmpDir.mkdirs();
 
         generateTestData();
@@ -54,9 +60,12 @@ class InfoZipPluginTest {
     protected static void generateTestData() {
         new File(testDataDir, "foobar.txt").write("this is a test");
 
-        File subdir= new File(testDataDir, "sub1");
+        File subdir= new File(testDataDir, "sub");
         subdir.mkdirs();
         new File(subdir, "foobaz.dat").write("this is also a test");
+
+        File symlink= new File(testDataDir, "sym");
+        Files.createSymbolicLink(symlink.toPath(), subdir.toPath());
     }
 
     protected void runBuild(File path, String target = "build") {

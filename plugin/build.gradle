@@ -1,9 +1,14 @@
 apply plugin: 'groovy'
 apply plugin: 'maven-publish'
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
     compile gradleApi()
     compile localGroovy()
+    testCompile 'commons-io:commons-io:2.4'
 }
 
 publishing {
