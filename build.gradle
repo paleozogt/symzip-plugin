@@ -1,7 +1,30 @@
 apply plugin: 'groovy'
+apply plugin: 'maven-publish'
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.ajoberstar:grgit:1.1.0'
+    }
+}
+import org.ajoberstar.grgit.Grgit;
+ext.git= Grgit.open(dir:projectDir)
+project.version= project.git.describe()
+ext.groupId= "${GROUPID}"
+logger.lifecycle "$project.groupId $project.name $project.version"
 
 dependencies {
     compile gradleApi()
     compile localGroovy()
 }
 
+publishing {
+    publications {
+        jar(MavenPublication) {
+            groupId project.groupId
+            artifactId project.name
+        }
+    }
+}
