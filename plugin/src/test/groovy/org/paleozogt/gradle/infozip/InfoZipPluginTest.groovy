@@ -9,7 +9,7 @@ import org.gradle.tooling.BuildLauncher;
 import org.junit.Test
 import static org.junit.Assert.*
 
-class PreprocessorPluginTest {
+class InfoZipPluginTest {
 
     @Test
     public void applyTest() {
