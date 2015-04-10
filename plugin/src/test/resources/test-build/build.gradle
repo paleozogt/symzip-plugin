@@ -1,0 +1,10 @@
+apply plugin: 'base'
+
+buildscript {
+    repositories {
+        flatDir ( dirs: "../../../../build/tmp/libs" )
+      }
+    dependencies {
+        classpath("org.paleozogt:info-zip-plugin:")
+    }
+}

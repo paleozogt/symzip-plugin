@@ -14,3 +14,12 @@ publishing {
         }
     }
 }
+
+task easyTestJar(type:Copy) {
+    from jar
+    into file("$buildDir/tmp/libs")
+    rename { filename ->
+        filename= project.name + '.jar'
+    }
+}
+compileTestGroovy.dependsOn(easyTestJar)
