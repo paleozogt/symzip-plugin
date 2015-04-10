@@ -18,6 +18,20 @@ class PreprocessorPluginTest {
     }
 
     @Test
+    public void infoZipTask() {
+        Project project = ProjectBuilder.builder().build()
+        def task = project.task('testTask', type: InfoZipTask)
+        assertTrue(task instanceof InfoZipTask)
+    }
+
+    @Test
+    public void infoUnzipTask() {
+        Project project = ProjectBuilder.builder().build()
+        def task = project.task('testTask', type: InfoUnzipTask)
+        assertTrue(task instanceof InfoUnzipTask)
+    }
+
+    @Test
     public void sampleBuildTest() {
         runBuild(new File("src/test/resources/test-build"))
     }
