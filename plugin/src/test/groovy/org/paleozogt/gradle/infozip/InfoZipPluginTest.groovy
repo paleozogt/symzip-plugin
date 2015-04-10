@@ -14,9 +14,14 @@ import java.nio.file.Files
 
 import org.apache.commons.io.FileUtils
 
+import org.slf4j.Logger
+import org.gradle.api.logging.Logging
+
 class InfoZipPluginTest {
     protected static File testDataDir;
     protected static File tmpDir;
+
+    private Logger logger= Logging.getLogger(getClass());
 
     @BeforeClass
     public static void setup() {
@@ -41,8 +46,12 @@ class InfoZipPluginTest {
     @Test
     public void infoZipTask() {
         Project project = ProjectBuilder.builder().build()
-        def task = project.task('testTask', type: InfoZipTask)
+        def task = project.task('testTask', type: InfoZipTask) {
+            from testDataDir
+            into tmpDir
+        }
         assertTrue(task instanceof InfoZipTask)
+        task.execute();
     }
 
     @Test
