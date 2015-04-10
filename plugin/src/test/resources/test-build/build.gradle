@@ -8,3 +8,12 @@ buildscript {
         classpath("org.paleozogt:info-zip-plugin:")
     }
 }
+import org.paleozogt.gradle.infozip.*;
+
+task testZip(type:InfoZipTask) {
+}
+
+task testUnzip(type:InfoUnzipTask, dependsOn:testZip) {
+}
+
+build.dependsOn([testUnzip])
