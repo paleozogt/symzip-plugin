@@ -11,6 +11,8 @@ buildscript {
 import org.paleozogt.gradle.infozip.*;
 
 task testZip(type:InfoZipTask) {
+    from file("../../../../build/testData")
+    destinationDir file("../../../../build/tmp/test")
 }
 
 task testUnzip(type:InfoUnzipTask, dependsOn:testZip) {
