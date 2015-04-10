@@ -7,22 +7,6 @@ buildscript {
     }
 }
 
-apply plugin: 'groovy'
-apply plugin: 'maven-publish'
 apply plugin: 'org.ajoberstar.release-opinion'
 release.grgit = org.ajoberstar.grgit.Grgit.open(projectDir)
 ext.groupId= "${GROUPID}"
-
-dependencies {
-    compile gradleApi()
-    compile localGroovy()
-}
-
-publishing {
-    publications {
-        plugin(MavenPublication) {
-            groupId project.groupId
-            artifact jar
-        }
-    }
-}

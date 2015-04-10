@@ -11,5 +11,8 @@ class PreprocessorPluginTest {
     public void crashlyticsPluginHasCustomizableManifest() {
         Project project = ProjectBuilder.builder().build()
         project.apply plugin: 'org.paleozogt.infozip'
+        
+        project.task(type:Zip) {
+        }
     }
 }
