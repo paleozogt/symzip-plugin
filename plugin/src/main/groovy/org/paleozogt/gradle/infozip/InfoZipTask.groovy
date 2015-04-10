@@ -12,10 +12,16 @@ import org.gradle.api.internal.tasks.SimpleWorkResult;
 import org.gradle.api.internal.file.copy.FileCopyDetailsInternal;
 import org.gradle.api.file.FileCopyDetails;
 
+import org.slf4j.Logger
+
 class InfoZipTask extends AbstractArchiveTask {
+    public InfoZipTask() {
+        getLogger().lifecycle("InfoZipTask ctor");
+    }
 
     @Override
     protected CopyAction createCopyAction() {
+        getLogger().lifecycle("createCopyAction");
         return new ZipCopyAction(getArchivePath());
     }
 
@@ -27,6 +33,7 @@ class InfoZipTask extends AbstractArchiveTask {
         }
 
         public WorkResult execute(final CopyActionProcessingStream stream) {
+            getLogger().lifecycle("execute");
             stream.process(new StreamAction());
             return new SimpleWorkResult(true);
         }
@@ -45,7 +52,7 @@ class InfoZipTask extends AbstractArchiveTask {
 
             private void visitFile(FileCopyDetails fileDetails) {
                 try {
-
+                    getLogger().lifecycle("visitFile {}", fileDetails);
                 } catch (Exception e) {
                     throw new GradleException(String.format("Could not add %s to ZIP '%s'.", fileDetails, zipFile), e);
                 }
@@ -53,6 +60,7 @@ class InfoZipTask extends AbstractArchiveTask {
 
             private void visitDir(FileCopyDetails dirDetails) {
                 try {
+                    getLogger().lifecycle("visitDir {}", dirDetails);
                 } catch (Exception e) {
                     throw new GradleException(String.format("Could not add %s to ZIP '%s'.", dirDetails, zipFile), e);
                 }
