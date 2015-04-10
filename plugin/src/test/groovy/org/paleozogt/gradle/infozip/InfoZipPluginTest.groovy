@@ -19,12 +19,16 @@ class PreprocessorPluginTest {
 
     @Test
     public void sampleBuildTest() {
+        runBuild(new File("src/test/resources/test-build"))
+    }
+
+    protected void runBuild(File path, String target = "build") {
         GradleConnector connector = GradleConnector.newConnector()
-        connector.forProjectDirectory(new File("src/test/resources/test-build"))
+        connector.forProjectDirectory(path)
         ProjectConnection connection = connector.connect()
         try {
             BuildLauncher launcher = connection.newBuild()
-            launcher.forTasks("build")
+            launcher.forTasks(target)
             launcher.run()
         } finally {
             connection.close()
