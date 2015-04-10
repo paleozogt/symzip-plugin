@@ -7,9 +7,24 @@ import org.gradle.tooling.ProjectConnection;
 import org.gradle.tooling.BuildLauncher;
 
 import org.junit.Test
+import org.junit.BeforeClass
 import static org.junit.Assert.*
 
 class InfoZipPluginTest {
+    protected static File testDataDir;
+    protected static File tmpDir;
+
+    @BeforeClass
+    public static void setup() {
+        // TODO: how to ask gradle what the build dir is?
+        testDataDir= new File("build/testData");
+        testDataDir.mkdirs();
+
+        tmpDir= new File("build/tmp/test");
+        tmpDir.mkdirs();
+
+        generateTestData();
+    }
 
     @Test
     public void applyTest() {
@@ -34,6 +49,14 @@ class InfoZipPluginTest {
     @Test
     public void sampleBuildTest() {
         runBuild(new File("src/test/resources/test-build"))
+    }
+
+    protected static void generateTestData() {
+        new File(testDataDir, "foobar.txt").write("this is a test");
+
+        File subdir= new File(testDataDir, "sub1");
+        subdir.mkdirs();
+        new File(subdir, "foobaz.dat").write("this is also a test");
     }
 
     protected void runBuild(File path, String target = "build") {
