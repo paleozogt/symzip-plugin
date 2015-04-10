@@ -22,9 +22,9 @@ dependencies {
 
 publishing {
     publications {
-        jar(MavenPublication) {
+        plugin(MavenPublication) {
             groupId project.groupId
-            artifactId project.name
+            artifact jar
         }
     }
 }
