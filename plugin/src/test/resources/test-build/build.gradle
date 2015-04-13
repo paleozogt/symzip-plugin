@@ -6,9 +6,12 @@ buildDir= file("$parentBuildDir/tmp/test-build")
 buildscript {
     repositories {
         flatDir ( dirs: "../../../../build/tmp/libs" )
+        mavenCentral()
     }
     dependencies {
         classpath("org.paleozogt:commons-compress-plugin:")
+        classpath 'org.apache.commons:commons-compress:1.9'
+        classpath 'org.apache.commons:commons-io:1.3.2'
     }
 }
 import org.paleozogt.gradle.compress.*;

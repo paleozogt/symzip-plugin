@@ -12,6 +12,10 @@ import org.gradle.api.internal.tasks.SimpleWorkResult;
 import org.gradle.api.internal.file.copy.FileCopyDetailsInternal;
 import org.gradle.api.file.FileCopyDetails;
 
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream.UnicodeExtraFieldPolicy;
+import org.apache.commons.compress.archivers.ArchiveEntry;
+
 import java.nio.file.Path;
 import java.nio.file.Files;
 
@@ -29,11 +33,15 @@ class CommonsZipTask extends AbstractArchiveTask {
     }
 
     public class ZipCopyAction implements CopyAction {
-        private final File zipFile;
+        private ZipArchiveOutputStream zipStream;
         private visitedSymLinks= [];
 
         public ZipCopyAction(File zipFile) {
-            this.zipFile = zipFile;
+            zipStream= new ZipArchiveOutputStream(zipFile);
+            zipStream.setEncoding("UTF8");
+            zipStream.setUseLanguageEncodingFlag(true);
+            zipStream.setCreateUnicodeExtraFields(UnicodeExtraFieldPolicy.ALWAYS);
+            zipStream.setFallbackToUTF8(true);
         }
 
         public WorkResult execute(final CopyActionProcessingStream stream) {
@@ -48,16 +56,14 @@ class CommonsZipTask extends AbstractArchiveTask {
 
             public void processFile(FileCopyDetailsInternal details) {
                 if (Files.isSymbolicLink(details.getFile().toPath())) {
-                    getLogger().lifecycle("processFile {} (symlink)", details);
-                    visitedSymLinks.add(details.getFile());
-                } else if (!details.isDirectory() && !isChildOfVisitedSymlink(details)) {
-                    getLogger().lifecycle("processFile {}", details);
+                    processSymLink(details.getFile());
+                } else if (!details.isDirectory() && !isChildOfVisitedSymlink(details.getFile())) {
+                    processFile(details.getFile());
                 }
             }
         }
 
-        private Boolean isChildOfVisitedSymlink(FileCopyDetails fcd) {
-            File file= fcd.getFile();
+        private Boolean isChildOfVisitedSymlink(File file) {
             for (File symLink : visitedSymLinks) {
                 if (isChildOf(symLink, file)) return true;
             }
@@ -71,6 +77,15 @@ class CommonsZipTask extends AbstractArchiveTask {
                 parent= parent.getParentFile();
             }
             return false;
+        }
+
+        protected void processFile(File file) {
+            getLogger().lifecycle("processFile {}", file);
+        }
+
+        protected void processSymLink(File file) {
+            getLogger().lifecycle("processFile {} (symlink)", file);
+            visitedSymLinks.add(file);
         }
     }
 }
