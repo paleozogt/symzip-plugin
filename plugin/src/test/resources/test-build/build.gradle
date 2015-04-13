@@ -18,10 +18,12 @@ import org.paleozogt.gradle.compress.*;
 
 task testGradleZip(type:Zip) {
     from file("$parentBuildDir/testData")
+    archiveName "gradle-zip.zip"
 }
 
 task testZip(type:CommonsZipTask) {
     from file("$parentBuildDir/testData")
+    archiveName "commons-zip.zip"
 }
 
 task testGradleUnzip(type:Copy, dependsOn:testGradleZip) {
