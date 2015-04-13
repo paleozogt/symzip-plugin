@@ -113,7 +113,7 @@ class CommonsZipTask extends AbstractArchiveTask {
                     Path link= Files.readSymbolicLink(fileDetails.getFile().toPath());
                     getLogger().lifecycle("visitSymLink {} (symlink->{})", fileDetails, link);
 
-                    ZipArchiveEntry archiveEntry= (ZipArchiveEntry)zipOutStr.createArchiveEntry(fileDetails.getFile(), fileDetails.getRelativePath().getPathString());
+                    ZipArchiveEntry archiveEntry= new ZipArchiveEntry(fileDetails.getRelativePath().getPathString());
                     archiveEntry.setTime(fileDetails.getLastModified());
                     archiveEntry.setUnixMode(UnixStat.DEFAULT_LINK_PERM | UnixStat.LINK_FLAG);
                     zipOutStr.putArchiveEntry(archiveEntry);
