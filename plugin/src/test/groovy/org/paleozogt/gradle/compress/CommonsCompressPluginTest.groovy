@@ -67,14 +67,18 @@ class CommonsCompressPluginTest {
     }
 
     protected static void generateTestData() {
-        new File(testDataDir, "foobar.txt").write("this is a test");
+        def testFile= new File(testDataDir, "foobar.txt");
+        testFile.write("this is a test");
 
-        File subdir= new File(testDataDir, "sub");
-        subdir.mkdirs();
-        new File(subdir, "foobaz.dat").write("this is also a test");
+        File subDir= new File(testDataDir, "subdir");
+        subDir.mkdirs();
+        new File(subDir, "foobaz.dat").write("this is also a test");
 
-        File symlink= new File(testDataDir, "sym");
-        Files.createSymbolicLink(symlink.toPath(), new File(subdir.getName()).toPath());
+        File dirSymlink= new File(testDataDir, "symdir");
+        Files.createSymbolicLink(dirSymlink.toPath(), new File(subDir.getName()).toPath());
+
+        File fileSymlink= new File(testDataDir, "symfile");
+        Files.createSymbolicLink(fileSymlink.toPath(), new File(testFile.getName()).toPath());
     }
 
     protected void runBuild(File path, String target = "build") {
