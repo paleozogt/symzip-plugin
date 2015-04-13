@@ -30,6 +30,7 @@ class CommonsZipTask extends AbstractArchiveTask {
 
     public class ZipCopyAction implements CopyAction {
         private final File zipFile;
+        private visitedSymLinks= [];
 
         public ZipCopyAction(File zipFile) {
             this.zipFile = zipFile;
@@ -48,12 +49,27 @@ class CommonsZipTask extends AbstractArchiveTask {
             public void processFile(FileCopyDetailsInternal details) {
                 if (Files.isSymbolicLink(details.getFile().toPath())) {
                     getLogger().lifecycle("processFile {} (symlink)", details);
-                } else if (details.isDirectory()) {
-                    getLogger().lifecycle("processFile {} (dir)", details);
+                    visitedSymLinks.add(details.getFile());
                 } else {
-                    getLogger().lifecycle("processFile {} (file)", details);
+                    getLogger().lifecycle("processFile {} (dir={}, childOfSymlink={})", details, details.isDirectory(), isChildOfVisitedSymlink(details.getFile()));
                 }
             }
+        }
+
+        private Boolean isChildOfVisitedSymlink(File file) {
+            for (File symLink : visitedSymLinks) {
+                if (isChildOf(symLink, file)) return true;
+            }
+            return false;
+        }
+
+        private Boolean isChildOf(File dir, File file) {
+            File parent= file.getParentFile();
+            while (parent != null) {
+                if (dir.toString() == parent.toString()) return true;
+                parent= parent.getParentFile();
+            }
+            return false;
         }
     }
 }
