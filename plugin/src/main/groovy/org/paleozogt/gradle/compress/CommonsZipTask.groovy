@@ -50,13 +50,14 @@ class CommonsZipTask extends AbstractArchiveTask {
                 if (Files.isSymbolicLink(details.getFile().toPath())) {
                     getLogger().lifecycle("processFile {} (symlink)", details);
                     visitedSymLinks.add(details.getFile());
-                } else {
-                    getLogger().lifecycle("processFile {} (dir={}, childOfSymlink={})", details, details.isDirectory(), isChildOfVisitedSymlink(details.getFile()));
+                } else if (!details.isDirectory() && !isChildOfVisitedSymlink(details)) {
+                    getLogger().lifecycle("processFile {}", details);
                 }
             }
         }
 
-        private Boolean isChildOfVisitedSymlink(File file) {
+        private Boolean isChildOfVisitedSymlink(FileCopyDetails fcd) {
+            File file= fcd.getFile();
             for (File symLink : visitedSymLinks) {
                 if (isChildOf(symLink, file)) return true;
             }
