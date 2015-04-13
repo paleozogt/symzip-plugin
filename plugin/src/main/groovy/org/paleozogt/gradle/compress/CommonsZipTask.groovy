@@ -13,11 +13,14 @@ import org.gradle.api.internal.file.copy.FileCopyDetailsInternal;
 import org.gradle.api.file.FileCopyDetails;
 
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream.UnicodeExtraFieldPolicy;
+import org.apache.commons.compress.archivers.zip.UnixStat;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 
 import java.nio.file.Path;
 import java.nio.file.Files;
+import java.nio.charset.Charset;
 
 import org.slf4j.Logger
 
@@ -33,59 +36,92 @@ class CommonsZipTask extends AbstractArchiveTask {
     }
 
     public class ZipCopyAction implements CopyAction {
-        private ZipArchiveOutputStream zipStream;
-        private visitedSymLinks= [];
+        private final File zipFile;
 
         public ZipCopyAction(File zipFile) {
-            zipStream= new ZipArchiveOutputStream(zipFile);
-            zipStream.setEncoding("UTF8");
-            zipStream.setUseLanguageEncodingFlag(true);
-            zipStream.setCreateUnicodeExtraFields(UnicodeExtraFieldPolicy.ALWAYS);
-            zipStream.setFallbackToUTF8(true);
+            this.zipFile= zipFile;
         }
 
         public WorkResult execute(final CopyActionProcessingStream stream) {
             getLogger().lifecycle("execute");
-            stream.process(new StreamAction());
+
+            ZipArchiveOutputStream zipOutStr= new ZipArchiveOutputStream(zipFile);
+            zipOutStr.setEncoding("UTF8");
+            zipOutStr.setUseLanguageEncodingFlag(true);
+            zipOutStr.setCreateUnicodeExtraFields(UnicodeExtraFieldPolicy.ALWAYS);
+            zipOutStr.setFallbackToUTF8(true);
+
+            stream.process(new StreamAction(zipOutStr));
             return new SimpleWorkResult(true);
         }
 
         private class StreamAction implements CopyActionProcessingStreamAction {
-            public StreamAction() {
+            private final ZipArchiveOutputStream zipOutStr;
+            private visitedSymLinks= [];
+
+            public StreamAction(ZipArchiveOutputStream zipOutStr) {
+                this.zipOutStr = zipOutStr;
             }
 
             public void processFile(FileCopyDetailsInternal details) {
-                if (Files.isSymbolicLink(details.getFile().toPath())) {
-                    processSymLink(details.getFile());
-                } else if (!details.isDirectory() && !isChildOfVisitedSymlink(details.getFile())) {
-                    processFile(details.getFile());
+                if (isSymLink(details)) {
+                    visitSymLink(details);
+                } else if (!details.isDirectory() && !isChildOfVisitedSymlink(details)) {
+                    visitFile(details);
                 }
             }
-        }
 
-        private Boolean isChildOfVisitedSymlink(File file) {
-            for (File symLink : visitedSymLinks) {
-                if (isChildOf(symLink, file)) return true;
+            private Boolean isSymLink(FileCopyDetails fileDetails) {
+                return Files.isSymbolicLink(fileDetails.getFile().toPath());
             }
-            return false;
-        }
 
-        private Boolean isChildOf(File dir, File file) {
-            File parent= file.getParentFile();
-            while (parent != null) {
-                if (dir.toString() == parent.toString()) return true;
-                parent= parent.getParentFile();
+            private Boolean isChildOfVisitedSymlink(FileCopyDetails fileDetails) {
+                File file= fileDetails.getFile();
+                for (File symLink : visitedSymLinks) {
+                    if (isChildOf(symLink, file)) return true;
+                }
+                return false;
             }
-            return false;
-        }
 
-        protected void processFile(File file) {
-            getLogger().lifecycle("processFile {}", file);
-        }
+            private Boolean isChildOf(File dir, File file) {
+                File parent= file.getParentFile();
+                while (parent != null) {
+                    if (dir.toString() == parent.toString()) return true;
+                    parent= parent.getParentFile();
+                }
+                return false;
+            }
 
-        protected void processSymLink(File file) {
-            getLogger().lifecycle("processFile {} (symlink)", file);
-            visitedSymLinks.add(file);
+            private void visitFile(FileCopyDetails fileDetails) {
+                try {
+                    getLogger().lifecycle("visitFile {}", fileDetails);
+                    ZipArchiveEntry archiveEntry= (ZipArchiveEntry)zipOutStr.createArchiveEntry(fileDetails.getFile(), fileDetails.getRelativePath().getPathString());
+                    archiveEntry.setTime(fileDetails.getLastModified());
+                    archiveEntry.setUnixMode(UnixStat.DEFAULT_FILE_PERM | fileDetails.getMode());
+                    zipOutStr.putArchiveEntry(archiveEntry);
+                    fileDetails.copyTo(zipOutStr);
+                    zipOutStr.closeArchiveEntry();
+                } catch (Exception e) {
+                    throw new GradleException(String.format("Could not add %s to ZIP '%s'.", fileDetails, zipFile), e);
+                }
+            }
+
+            protected void visitSymLink(FileCopyDetails fileDetails) {
+                try {
+                    getLogger().lifecycle("visitSymLink {} (symlink)", fileDetails);
+                    visitedSymLinks.add(fileDetails.getFile());
+                    Path link= Files.readSymbolicLink(fileDetails.getFile().toPath());
+
+                    ZipArchiveEntry archiveEntry= (ZipArchiveEntry)zipOutStr.createArchiveEntry(fileDetails.getFile(), fileDetails.getRelativePath().getPathString());
+                    archiveEntry.setTime(fileDetails.getLastModified());
+                    archiveEntry.setUnixMode(UnixStat.DEFAULT_LINK_PERM | UnixStat.LINK_FLAG | fileDetails.getMode());
+                    zipOutStr.putArchiveEntry(archiveEntry);
+                    zipOutStr.write(link.toString().getBytes(Charset.forName("UTF-8")));
+                    zipOutStr.closeArchiveEntry();
+                } catch (Exception e) {
+                    throw new GradleException(String.format("Could not add %s to ZIP '%s'.", fileDetails, zipFile), e);
+                }
+            }
         }
     }
 }
