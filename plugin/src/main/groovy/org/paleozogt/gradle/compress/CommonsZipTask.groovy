@@ -26,7 +26,7 @@ import org.slf4j.Logger
 
 class CommonsZipTask extends AbstractArchiveTask {
     public CommonsZipTask() {
-        getLogger().lifecycle("InfoZipTask ctor");
+        getLogger().lifecycle("CommonsZipTask ctor");
     }
 
     @Override
