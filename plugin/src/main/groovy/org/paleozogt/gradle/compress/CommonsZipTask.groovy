@@ -12,6 +12,9 @@ import org.gradle.api.internal.tasks.SimpleWorkResult;
 import org.gradle.api.internal.file.copy.FileCopyDetailsInternal;
 import org.gradle.api.file.FileCopyDetails;
 
+import java.nio.file.Path;
+import java.nio.file.Files;
+
 import org.slf4j.Logger
 
 class CommonsZipTask extends AbstractArchiveTask {
@@ -43,26 +46,12 @@ class CommonsZipTask extends AbstractArchiveTask {
             }
 
             public void processFile(FileCopyDetailsInternal details) {
-                if (details.isDirectory()) {
-                    visitDir(details);
+                if (Files.isSymbolicLink(details.getFile().toPath())) {
+                    getLogger().lifecycle("processFile {} (symlink)", details);
+                } else if (details.isDirectory()) {
+                    getLogger().lifecycle("processFile {} (dir)", details);
                 } else {
-                    visitFile(details);
-                }
-            }
-
-            private void visitFile(FileCopyDetails fileDetails) {
-                try {
-                    getLogger().lifecycle("visitFile {}", fileDetails);
-                } catch (Exception e) {
-                    throw new GradleException(String.format("Could not add %s to ZIP '%s'.", fileDetails, zipFile), e);
-                }
-            }
-
-            private void visitDir(FileCopyDetails dirDetails) {
-                try {
-                    getLogger().lifecycle("visitDir {}", dirDetails);
-                } catch (Exception e) {
-                    throw new GradleException(String.format("Could not add %s to ZIP '%s'.", dirDetails, zipFile), e);
+                    getLogger().lifecycle("processFile {} (file)", details);
                 }
             }
         }
