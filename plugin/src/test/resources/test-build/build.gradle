@@ -5,17 +5,17 @@ buildscript {
         flatDir ( dirs: "../../../../build/tmp/libs" )
     }
     dependencies {
-        classpath("org.paleozogt:info-zip-plugin:")
+        classpath("org.paleozogt:commons-compress-plugin:")
     }
 }
-import org.paleozogt.gradle.infozip.*;
+import org.paleozogt.gradle.zip.*;
 
-task testZip(type:InfoZipTask) {
+task testZip(type:CommonsZipTask) {
     from file("../../../../build/testData")
     destinationDir file("../../../../build/tmp/test")
 }
 
-task testUnzip(type:InfoUnzipTask, dependsOn:testZip) {
+task testUnzip(type:CommonsUnzipTask, dependsOn:testZip) {
 }
 
 build.dependsOn([testUnzip])

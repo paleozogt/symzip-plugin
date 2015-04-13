@@ -1,4 +1,4 @@
-package org.paleozogt.gradle.infozip
+package org.paleozogt.gradle.zip
 
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 import org.gradle.api.internal.file.copy.CopyAction
@@ -14,8 +14,8 @@ import org.gradle.api.file.FileCopyDetails;
 
 import org.slf4j.Logger
 
-class InfoZipTask extends AbstractArchiveTask {
-    public InfoZipTask() {
+class CommonsZipTask extends AbstractArchiveTask {
+    public CommonsZipTask() {
         getLogger().lifecycle("InfoZipTask ctor");
     }
 

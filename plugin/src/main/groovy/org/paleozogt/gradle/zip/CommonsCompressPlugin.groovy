@@ -1,9 +1,9 @@
-package org.paleozogt.gradle.infozip
+package org.paleozogt.gradle.zip
 
 import org.gradle.api.Project
 import org.gradle.api.Plugin
 
-class InfoZipPlugin implements Plugin<Project> {
+class CommonsCompressPlugin implements Plugin<Project> {
     void apply(Project project) {
     }    
 }

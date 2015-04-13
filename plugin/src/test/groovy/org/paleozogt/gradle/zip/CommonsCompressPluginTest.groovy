@@ -1,4 +1,4 @@
-package org.paleozogt.gradle.infozip
+package org.paleozogt.gradle.zip
 
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -17,7 +17,7 @@ import org.apache.commons.io.FileUtils
 import org.slf4j.Logger
 import org.gradle.api.logging.Logging
 
-class InfoZipPluginTest {
+class CommonsCompressPluginTest {
     protected static File testDataDir;
     protected static File tmpDir;
 
@@ -40,25 +40,25 @@ class InfoZipPluginTest {
     @Test
     public void applyTest() {
         Project project = ProjectBuilder.builder().build()
-        project.apply plugin: 'org.paleozogt.infozip'
+        project.apply plugin: 'org.paleozogt.commons-compress'
     }
 
     @Test
-    public void infoZipTask() {
+    public void zipTask() {
         Project project = ProjectBuilder.builder().build()
-        def task = project.task('testTask', type: InfoZipTask) {
+        def task = project.task('testTask', type: CommonsZipTask) {
             from testDataDir
             into tmpDir
         }
-        assertTrue(task instanceof InfoZipTask)
+        assertTrue(task instanceof CommonsZipTask)
         task.execute();
     }
 
     @Test
-    public void infoUnzipTask() {
+    public void unzipTask() {
         Project project = ProjectBuilder.builder().build()
-        def task = project.task('testTask', type: InfoUnzipTask)
-        assertTrue(task instanceof InfoUnzipTask)
+        def task = project.task('testTask', type: CommonsUnzipTask)
+        assertTrue(task instanceof CommonsUnzipTask)
     }
 
     @Test
