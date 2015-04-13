@@ -1,5 +1,8 @@
 apply plugin: 'base'
 
+def parentBuildDir= file("../../../../build")
+buildDir= file("$parentBuildDir/tmp/test-build")
+
 buildscript {
     repositories {
         flatDir ( dirs: "../../../../build/tmp/libs" )
@@ -11,8 +14,7 @@ buildscript {
 import org.paleozogt.gradle.compress.*;
 
 task testZip(type:CommonsZipTask) {
-    from file("../../../../build/testData")
-    destinationDir file("../../../../build/tmp/test")
+    from file("parentBuildDir/testData")
 }
 
 task testUnzip(type:CommonsUnzipTask, dependsOn:testZip) {
