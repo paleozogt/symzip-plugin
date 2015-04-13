@@ -52,6 +52,7 @@ class CommonsZipTask extends AbstractArchiveTask {
             zipOutStr.setFallbackToUTF8(true);
 
             stream.process(new StreamAction(zipOutStr));
+            zipOutStr.close();
             return new SimpleWorkResult(true);
         }
 
