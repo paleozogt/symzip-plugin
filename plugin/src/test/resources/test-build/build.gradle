@@ -14,11 +14,11 @@ buildscript {
 import org.paleozogt.gradle.compress.*;
 
 task testGradleZip(type:Zip) {
-    from file("parentBuildDir/testData")
+    from file("$parentBuildDir/testData")
 }
 
 task testZip(type:CommonsZipTask) {
-    from file("parentBuildDir/testData")
+    from file("$parentBuildDir/testData")
 }
 
 task testGradleUnzip(type:Copy, dependsOn:testGradleZip) {
