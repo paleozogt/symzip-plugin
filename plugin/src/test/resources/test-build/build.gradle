@@ -8,7 +8,7 @@ buildscript {
         classpath("org.paleozogt:commons-compress-plugin:")
     }
 }
-import org.paleozogt.gradle.zip.*;
+import org.paleozogt.gradle.compress.*;
 
 task testZip(type:CommonsZipTask) {
     from file("../../../../build/testData")

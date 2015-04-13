@@ -1,4 +1,4 @@
-package org.paleozogt.gradle.zip
+package org.paleozogt.gradle.compress
 
 import org.gradle.api.Project
 import org.gradle.api.Plugin
