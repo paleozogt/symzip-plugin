@@ -74,7 +74,7 @@ class CommonsCompressPluginTest {
         new File(subdir, "foobaz.dat").write("this is also a test");
 
         File symlink= new File(testDataDir, "sym");
-        Files.createSymbolicLink(symlink.toPath(), subdir.toPath());
+        Files.createSymbolicLink(symlink.toPath(), new File(subdir.getName()).toPath());
     }
 
     protected void runBuild(File path, String target = "build") {
