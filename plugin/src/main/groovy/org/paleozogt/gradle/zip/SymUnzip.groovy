@@ -104,7 +104,6 @@ class SymUnzip extends AbstractCopyTask {
 
             protected void explodeZip(FileCopyDetails fileDetails, File target) {
                 ZipFile zipFile= new ZipFile(fileDetails.getFile());
-                getLogger().lifecycle("from {} to {}", fileDetails, target);
 
                 // TODO: for-each?
                 Enumeration entries= zipFile.getEntries();
@@ -112,7 +111,7 @@ class SymUnzip extends AbstractCopyTask {
                     ZipArchiveEntry entry=(ZipArchiveEntry)entries.nextElement();
                     File entryFile= new File(target, entry.getName());
                     entryFile.getParentFile().mkdirs();
-                    getLogger().lifecycle("entry {} mode={} symlink={}", entry, entry.getUnixMode(), entry.isUnixSymlink());
+                    getLogger().debug("zip entry {} mode={} symlink={}", entry, entry.getUnixMode(), entry.isUnixSymlink());
                     if (entry.isUnixSymlink()) {
                         String linkEntry= getEntryContents(zipFile, entry);
                         File linkEntryFile= new File(linkEntry);

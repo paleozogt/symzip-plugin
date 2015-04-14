@@ -26,12 +26,10 @@ import org.slf4j.Logger
 
 class SymZip extends AbstractArchiveTask {
     public CommonsZipTask() {
-        getLogger().lifecycle("CommonsZipTask ctor");
     }
 
     @Override
     protected CopyAction createCopyAction() {
-        getLogger().lifecycle("createCopyAction");
         return new ZipCopyAction(getArchivePath());
     }
 
@@ -43,8 +41,6 @@ class SymZip extends AbstractArchiveTask {
         }
 
         public WorkResult execute(final CopyActionProcessingStream stream) {
-            getLogger().lifecycle("execute");
-
             ZipArchiveOutputStream zipOutStr= new ZipArchiveOutputStream(zipFile);
             zipOutStr.setEncoding("UTF8");
             zipOutStr.setUseLanguageEncodingFlag(true);
@@ -65,6 +61,7 @@ class SymZip extends AbstractArchiveTask {
             }
 
             public void processFile(FileCopyDetailsInternal details) {
+                getLogger().debug("processFile {}", details);
                 if (isSymLink(details)) {
                     visitSymLink(details);
                 } else if (!details.isDirectory() && !isChildOfVisitedSymlink(details)) {
@@ -99,7 +96,6 @@ class SymZip extends AbstractArchiveTask {
 
             private void visitFile(FileCopyDetails fileDetails) {
                 try {
-                    getLogger().lifecycle("visitFile {}", fileDetails);
                     ZipArchiveEntry archiveEntry= (ZipArchiveEntry)zipOutStr.createArchiveEntry(fileDetails.getFile(), fileDetails.getRelativePath().getPathString());
                     archiveEntry.setTime(fileDetails.getLastModified());
                     archiveEntry.setUnixMode(UnixStat.DEFAULT_FILE_PERM | fileDetails.getMode());
@@ -115,7 +111,6 @@ class SymZip extends AbstractArchiveTask {
                 try {
                     visitedSymLinks.add(fileDetails.getFile());
                     Path link= Files.readSymbolicLink(fileDetails.getFile().toPath());
-                    getLogger().lifecycle("visitSymLink {} (symlink->{})", fileDetails, link);
 
                     ZipArchiveEntry archiveEntry= new ZipArchiveEntry(fileDetails.getRelativePath().getPathString());
                     archiveEntry.setTime(fileDetails.getLastModified());
