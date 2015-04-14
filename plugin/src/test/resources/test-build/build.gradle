@@ -23,7 +23,7 @@ task testGradleZip(type:Zip) {
 
 task testZip(type:SymZip) {
     from file("$parentBuildDir/testData")
-    archiveName "commons-zip.zip"
+    archiveName "sym-zip.zip"
 }
 
 task testGradleUnzip(type:Copy, dependsOn:testGradleZip) {
@@ -33,7 +33,7 @@ task testGradleUnzip(type:Copy, dependsOn:testGradleZip) {
 
 task testUnzip(type:SymUnzip, dependsOn:testZip) {
     from testZip.outputs.files.first()
-    into file("$buildDir/unzip/commons-unzip")
+    into file("$buildDir/unzip/sym-unzip")
 }
 
 build.dependsOn([testUnzip,testGradleUnzip])
