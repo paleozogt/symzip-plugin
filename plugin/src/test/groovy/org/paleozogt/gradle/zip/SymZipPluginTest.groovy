@@ -1,4 +1,4 @@
-package org.paleozogt.gradle.compress
+package org.paleozogt.gradle.zip
 
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -17,7 +17,7 @@ import org.apache.commons.io.FileUtils
 import org.slf4j.Logger
 import org.gradle.api.logging.Logging
 
-class CommonsCompressPluginTest {
+class SymZipPluginTest {
     protected static File testDataDir;
     protected static File tmpDir;
 
@@ -40,25 +40,25 @@ class CommonsCompressPluginTest {
     @Test
     public void applyTest() {
         Project project = ProjectBuilder.builder().build()
-        project.apply plugin: 'org.paleozogt.commons-compress'
+        project.apply plugin: 'org.paleozogt.symzip'
     }
 
     @Test
     public void zipTask() {
         Project project = ProjectBuilder.builder().build()
-        def task = project.task('testTask', type: CommonsZipTask) {
+        def task = project.task('testTask', type: SymZip) {
             from testDataDir
             into tmpDir
         }
-        assertTrue(task instanceof CommonsZipTask)
+        assertTrue(task instanceof SymZip)
         task.execute();
     }
 
     @Test
     public void unzipTask() {
         Project project = ProjectBuilder.builder().build()
-        def task = project.task('testTask', type: CommonsUnzipTask)
-        assertTrue(task instanceof CommonsUnzipTask)
+        def task = project.task('testTask', type: SymUnzip)
+        assertTrue(task instanceof SymUnzip)
     }
 
     @Test

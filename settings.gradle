@@ -1,4 +1,4 @@
 include 'plugin'
 
-project(':plugin').name= 'commons-compress-plugin'
-rootProject.name = 'commons-compress-plugin-project'
+project(':plugin').name= 'symzip-plugin'
+rootProject.name = 'symzip-plugin-project'

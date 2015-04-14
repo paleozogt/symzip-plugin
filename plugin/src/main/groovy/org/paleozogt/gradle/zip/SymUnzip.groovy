@@ -1,4 +1,4 @@
-package org.paleozogt.gradle.compress
+package org.paleozogt.gradle.zip
 
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.WorkResult;
@@ -29,7 +29,7 @@ import java.nio.file.Files;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.FilenameUtils;
 
-class CommonsUnzipTask extends AbstractCopyTask {
+class SymUnzip extends AbstractCopyTask {
     @Override
     protected CopyAction createCopyAction() {
         File destinationDir = getDestinationDir();

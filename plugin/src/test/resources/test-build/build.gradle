@@ -9,19 +9,19 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.paleozogt:commons-compress-plugin:")
+        classpath("org.paleozogt:symzip-plugin:")
         classpath 'org.apache.commons:commons-compress:1.9'
         classpath 'org.apache.commons:commons-io:1.3.2'
     }
 }
-import org.paleozogt.gradle.compress.*;
+import org.paleozogt.gradle.zip.*;
 
 task testGradleZip(type:Zip) {
     from file("$parentBuildDir/testData")
     archiveName "gradle-zip.zip"
 }
 
-task testZip(type:CommonsZipTask) {
+task testZip(type:SymZip) {
     from file("$parentBuildDir/testData")
     archiveName "commons-zip.zip"
 }
@@ -31,7 +31,7 @@ task testGradleUnzip(type:Copy, dependsOn:testGradleZip) {
     into file("$buildDir/unzip/gradle-unzip")
 }
 
-task testUnzip(type:CommonsUnzipTask, dependsOn:testZip) {
+task testUnzip(type:SymUnzip, dependsOn:testZip) {
     from testZip.outputs.files.first()
     into file("$buildDir/unzip/commons-unzip")
 }

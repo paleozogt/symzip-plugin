@@ -1,4 +1,4 @@
-package org.paleozogt.gradle.compress
+package org.paleozogt.gradle.zip
 
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 import org.gradle.api.internal.file.copy.CopyAction
@@ -24,7 +24,7 @@ import java.nio.charset.Charset;
 
 import org.slf4j.Logger
 
-class CommonsZipTask extends AbstractArchiveTask {
+class SymZip extends AbstractArchiveTask {
     public CommonsZipTask() {
         getLogger().lifecycle("CommonsZipTask ctor");
     }
