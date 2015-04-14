@@ -73,7 +73,11 @@ class SymZip extends AbstractArchiveTask {
             }
 
             private Boolean isSymLink(FileCopyDetails fileDetails) {
-                return Files.isSymbolicLink(fileDetails.getFile().toPath());
+                try {
+                    return Files.isSymbolicLink(fileDetails.getFile().toPath());
+                } catch (Exception e) {
+                    return false;
+                }
             }
 
             private Boolean isChildOfVisitedSymlink(FileCopyDetails fileDetails) {

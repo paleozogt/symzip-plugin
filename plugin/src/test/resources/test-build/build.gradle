@@ -21,6 +21,7 @@ ext.testDir    = "foo"
 ext.testFile   = "$testDir/bar.txt"
 ext.testSymFile= "symfile.txt"
 ext.testSymDir = "symdir"
+ext.inZipDir   = "test"
 
 task makeTestData() {
     def testDataDir= file("$buildDir/testData")
@@ -36,6 +37,7 @@ task makeTestData() {
 task runSymZip(type:SymZip, dependsOn:makeTestData) {
     from file(makeTestData.outputs.files.first())
     archiveName "sym-zip.zip"
+    into inZipDir
 }
 
 task runSymUnzip(type:SymUnzip, dependsOn:runSymZip) {
@@ -49,14 +51,14 @@ task validateSymUnzip(dependsOn:runSymUnzip) << {
 
     // make sure the file roundtripped
     def file1Contents= file("$testDataDir/$testFile").text
-    def file2Contents= file("$symUnzipDir/$testFile").text
+    def file2Contents= file("$symUnzipDir/$inZipDir/$testFile").text
     if (file1Contents != file2Contents) {
         throw new GradleException("file contents doesn't match")
     }
 
     // make sure the symbolic links roundtripped
     [ testSymFile, testSymDir ].each { f ->
-        def filePath = file("$symUnzipDir/$f").toPath()
+        def filePath = file("$symUnzipDir/$inZipDir/$f").toPath()
         if (!Files.isSymbolicLink(filePath)) {
             throw new GradleException("symbolic link not preserved")
         }
