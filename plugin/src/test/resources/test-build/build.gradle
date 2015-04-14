@@ -11,29 +11,88 @@ buildscript {
     dependencies {
         classpath("org.paleozogt:symzip-plugin:")
         classpath 'org.apache.commons:commons-compress:1.9'
-        classpath 'org.apache.commons:commons-io:1.3.2'
+        classpath 'commons-io:commons-io:2.4'
     }
 }
 import org.paleozogt.gradle.zip.*;
+import java.nio.file.Files;
 
-task testGradleZip(type:Zip) {
-    from file("$parentBuildDir/testData")
-    archiveName "gradle-zip.zip"
+ext.testDir    = "foo"
+ext.testFile   = "$testDir/bar.txt"
+ext.testSymFile= "symfile.txt"
+ext.testSymDir = "symdir"
+
+task makeTestData() {
+    def testDataDir= file("$buildDir/testData")
+    outputs.file testDataDir
+    doLast {
+        file("$testDataDir/$testDir").mkdirs()
+        file("$testDataDir/$testFile").write("this is a test")
+        ant.symlink(link: file("$testDataDir/$testSymFile"), resource: testFile)
+        ant.symlink(link: file("$testDataDir/$testSymDir") , resource: testDir)
+    }
 }
 
-task testZip(type:SymZip) {
-    from file("$parentBuildDir/testData")
+task runSymZip(type:SymZip, dependsOn:makeTestData) {
+    from file(makeTestData.outputs.files.first())
     archiveName "sym-zip.zip"
 }
 
-task testGradleUnzip(type:Copy, dependsOn:testGradleZip) {
-    from zipTree(testGradleZip.outputs.files.first())
-    into file("$buildDir/unzip/gradle-unzip")
-}
-
-task testUnzip(type:SymUnzip, dependsOn:testZip) {
-    from testZip.outputs.files.first()
+task runSymUnzip(type:SymUnzip, dependsOn:runSymZip) {
+    from runSymZip.outputs.files.first()
     into file("$buildDir/unzip/sym-unzip")
 }
 
-build.dependsOn([testUnzip,testGradleUnzip])
+task validateSymUnzip(dependsOn:runSymUnzip) << {
+    def testDataDir= makeTestData.outputs.files.first()
+    def symUnzipDir= runSymUnzip.outputs.files.first()
+
+    // make sure the file roundtripped
+    def file1Contents= file("$testDataDir/$testFile").text
+    def file2Contents= file("$symUnzipDir/$testFile").text
+    if (file1Contents != file2Contents) {
+        throw new GradleException("file contents doesn't match")
+    }
+
+    // make sure the symbolic links roundtripped
+    [ testSymFile, testSymDir ].each { f ->
+        def filePath = file("$symUnzipDir/$f").toPath()
+        if (!Files.isSymbolicLink(filePath)) {
+            throw new GradleException("symbolic link not preserved")
+        }
+    }
+}
+
+task runGradleZip(type:Zip, dependsOn:makeTestData) {
+    from file(makeTestData.outputs.files.first())
+    archiveName "gradle-zip.zip"
+}
+
+task runGradleUnzip(type:Copy, dependsOn:runGradleZip) {
+    from zipTree(runGradleZip.outputs.files.first())
+    into file("$buildDir/unzip/gradle-unzip")
+}
+
+task validateGradleUnzip(dependsOn:runGradleUnzip) << {
+    def testDataDir= makeTestData.outputs.files.first()
+    def symUnzipDir= runGradleUnzip.outputs.files.first()
+
+    // make sure the file roundtripped
+    def file1Contents= file("$testDataDir/$testFile").text
+    def file2Contents= file("$symUnzipDir/$testFile").text
+    if (file1Contents != file2Contents) {
+        throw new GradleException("file contents doesn't match")
+    }
+
+    // make sure the symbolic links roundtripped
+    [ testSymFile, testSymDir ].each { f ->
+        def filePath = file("$symUnzipDir/$f").toPath()
+        if (Files.isSymbolicLink(filePath)) {
+            throw new GradleException("symbolic link unexpectedly preserved")
+        }
+    }
+}
+
+task validate(dependsOn:[validateSymUnzip,validateGradleUnzip])
+
+build.dependsOn(validate)
