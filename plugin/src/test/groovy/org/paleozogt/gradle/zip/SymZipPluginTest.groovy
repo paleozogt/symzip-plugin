@@ -47,6 +47,7 @@ class SymZipPluginTest {
         ProjectConnection connection = connector.connect()
         try {
             BuildLauncher launcher = connection.newBuild()
+            launcher.setStandardOutput(System.out)
             launcher.forTasks(target)
             launcher.run()
         } finally {
