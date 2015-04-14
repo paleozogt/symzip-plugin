@@ -27,9 +27,13 @@ task testZip(type:CommonsZipTask) {
 }
 
 task testGradleUnzip(type:Copy, dependsOn:testGradleZip) {
+    from zipTree(testGradleZip.outputs.files.first())
+    into file("$buildDir/unzip/gradle-unzip")
 }
 
 task testUnzip(type:CommonsUnzipTask, dependsOn:testZip) {
+    from testZip.outputs.files.first()
+    into file("$buildDir/unzip/commons-unzip")
 }
 
 build.dependsOn([testUnzip,testGradleUnzip])
