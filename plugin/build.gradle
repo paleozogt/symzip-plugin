@@ -10,8 +10,6 @@ dependencies {
     compile localGroovy()
     compile 'org.apache.commons:commons-compress:1.9'
     compile 'commons-io:commons-io:2.4'
-
-    testCompile 'commons-io:commons-io:2.4'
 }
 
 publishing {
@@ -19,6 +17,19 @@ publishing {
         plugin(MavenPublication) {
             groupId rootProject.groupId
             artifact jar
+
+            // workaround bug in maven-publish where it doesn't bring dependencies into the pom
+            pom.withXml {
+                def depsNode= asNode().appendNode('dependencies')
+                project.configurations.compile.allDependencies.each { dep ->
+                    if (dep.version == null) return;
+                    def depNode= depsNode.appendNode('dependency')
+                    depNode.appendNode('groupId', dep.group)
+                    depNode.appendNode('artifactId', dep.name)
+                    depNode.appendNode('version', dep.version)
+                    depNode.appendNode('scope', 'runtime')
+                }
+            }
         }
     }
 }
