@@ -8,5 +8,10 @@ buildscript {
 }
 
 apply plugin: 'org.ajoberstar.release-opinion'
-release.grgit = org.ajoberstar.grgit.Grgit.open(projectDir)
+import org.ajoberstar.grgit.Grgit
+import org.ajoberstar.gradle.git.release.opinion.Strategies
+release {
+    grgit = Grgit.open(projectDir)
+    defaultVersionStrategy = Strategies.SNAPSHOT
+}
 ext.groupId= "${GROUPID}"

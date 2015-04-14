@@ -13,6 +13,22 @@ dependencies {
 }
 
 publishing {
+    repositories {
+        if (project.hasProperty('REPO_URL')) {
+            maven {
+                credentials {
+                    username project.hasProperty('REPO_USERNAME') ? "$REPO_USERNAME" : ""
+                    password project.hasProperty('REPO_PASSWORD') ? "$REPO_PASSWORD" : ""
+                }
+                if(project.version.toString().endsWith('-SNAPSHOT')) {
+                    url "${REPO_URL}/repositories/snapshots"
+                } else {
+                    url "${REPO_URL}/repositories/releases"
+                }
+            }
+        }
+    }
+
     publications {
         plugin(MavenPublication) {
             groupId rootProject.groupId
