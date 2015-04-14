@@ -9,12 +9,25 @@ import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.internal.file.FileResolver;
 import org.gradle.api.internal.file.CopyActionProcessingStreamAction;
 import org.gradle.api.internal.tasks.SimpleWorkResult;
+import org.gradle.api.file.FileCopyDetails;
 import org.gradle.api.internal.file.copy.FileCopyDetailsInternal;
 import org.gradle.api.tasks.OutputDirectory;
 
 import org.gradle.api.internal.file.copy.CopySpecInternal;
 import org.gradle.api.internal.file.copy.DestinationRootCopySpec;
 import org.gradle.internal.reflect.Instantiator;
+
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream.UnicodeExtraFieldPolicy;
+import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.apache.commons.compress.archivers.zip.UnixStat;
+import org.apache.commons.compress.archivers.ArchiveEntry;
+
+import java.nio.file.Files;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.FilenameUtils;
 
 class CommonsUnzipTask extends AbstractCopyTask {
     @Override
@@ -76,10 +89,45 @@ class CommonsUnzipTask extends AbstractCopyTask {
 
             public void processFile(FileCopyDetailsInternal details) {
                 File target = fileResolver.resolve(details.getRelativePath().getPathString());
-                boolean copied = details.copyTo(target);
-                if (copied) {
-                    didWork = true;
+
+                String sourceExt = FilenameUtils.getExtension(details.getFile().toString()).toLowerCase();
+                if (sourceExt.equals("zip")) {
+                    explodeZip(details, target.getParentFile());
+                    didWork= true;
+                } else {
+                    boolean copied = details.copyTo(target);
+                    if (copied) {
+                        didWork = true;
+                    }
                 }
+            }
+
+            protected void explodeZip(FileCopyDetails fileDetails, File target) {
+                ZipFile zipFile= new ZipFile(fileDetails.getFile());
+                getLogger().lifecycle("from {} to {}", fileDetails, target);
+
+                // TODO: for-each?
+                Enumeration entries= zipFile.getEntries();
+                while (entries.hasMoreElements()) {
+                    ZipArchiveEntry entry=(ZipArchiveEntry)entries.nextElement();
+                    File entryFile= new File(target, entry.getName());
+                    entryFile.getParentFile().mkdirs();
+                    getLogger().lifecycle("entry {} mode={} symlink={}", entry, entry.getUnixMode(), entry.isUnixSymlink());
+                    if (entry.isUnixSymlink()) {
+                        String linkEntry= getEntryContents(zipFile, entry);
+                        File linkEntryFile= new File(linkEntry);
+                        Files.createSymbolicLink(entryFile.toPath(), linkEntryFile.toPath());
+                    } else if (!entry.isDirectory()) {
+                        IOUtils.copy(zipFile.getInputStream(entry), new FileOutputStream(entryFile));
+                    }
+                }
+            }
+
+            protected static String getEntryContents(ZipFile zipFile, ZipArchiveEntry entry) throws IOException {
+                InputStream entryStream= zipFile.getInputStream(entry);
+                ByteArrayOutputStream contents= new ByteArrayOutputStream();
+                IOUtils.copy(entryStream, contents);
+                return contents.toString();
             }
         }
     }
