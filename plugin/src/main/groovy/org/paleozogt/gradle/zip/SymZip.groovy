@@ -98,7 +98,7 @@ class SymZip extends AbstractArchiveTask {
                 try {
                     ZipArchiveEntry archiveEntry= (ZipArchiveEntry)zipOutStr.createArchiveEntry(fileDetails.getFile(), fileDetails.getRelativePath().getPathString());
                     archiveEntry.setTime(fileDetails.getLastModified());
-                    archiveEntry.setUnixMode(UnixStat.DEFAULT_FILE_PERM | fileDetails.getMode());
+                    archiveEntry.setUnixMode(UnixStat.FILE_FLAG | fileDetails.getMode());
                     zipOutStr.putArchiveEntry(archiveEntry);
                     fileDetails.copyTo(zipOutStr);
                     zipOutStr.closeArchiveEntry();
@@ -114,7 +114,7 @@ class SymZip extends AbstractArchiveTask {
 
                     ZipArchiveEntry archiveEntry= new ZipArchiveEntry(fileDetails.getRelativePath().getPathString());
                     archiveEntry.setTime(fileDetails.getLastModified());
-                    archiveEntry.setUnixMode(UnixStat.DEFAULT_LINK_PERM | UnixStat.LINK_FLAG);
+                    archiveEntry.setUnixMode(UnixStat.LINK_FLAG | fileDetails.getMode());
                     zipOutStr.putArchiveEntry(archiveEntry);
                     zipOutStr.write(link.toString().getBytes(Charset.forName("UTF-8")));
                     zipOutStr.closeArchiveEntry();
