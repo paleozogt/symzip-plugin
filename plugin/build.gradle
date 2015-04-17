@@ -13,33 +13,15 @@ dependencies {
     compile 'commons-io:commons-io:2.4'
 }
 
-
-artifacts {
-    jar
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    from 'build/docs/javadoc'
+    classifier = 'javadoc'
 }
 
-signing {
-    sign configurations.archives
-}
-
-group "$GROUPID"
-ext.deployUsername= project.hasProperty('REPO_USERNAME') ? "$REPO_USERNAME" : ""
-ext.deployPassword= project.hasProperty('REPO_PASSWORD') ? "$REPO_PASSWORD" : ""
-if(project.version.toString().endsWith('-SNAPSHOT')) {
-    ext.deployUrl= "${REPO_URL_SNAPSHOT}"
-} else {
-    ext.deployUrl= "${REPO_URL_RELEASE}"
-}
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-            repository(url: deployUrl) {
-                authentication(userName: deployUsername, password: deployPassword)
-            }
-        }
-    }
+ 
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
 }
 
 task easyTestJar(type:Copy) {
@@ -50,3 +32,59 @@ task easyTestJar(type:Copy) {
     }
 }
 compileTestGroovy.dependsOn(easyTestJar)
+
+group "$GROUPID"
+ext.deployUsername= project.hasProperty('REPO_USERNAME') ? "$REPO_USERNAME" : ""
+ext.deployPassword= project.hasProperty('REPO_PASSWORD') ? "$REPO_PASSWORD" : ""
+if(project.version.toString().endsWith('-SNAPSHOT')) {
+    ext.deployUrl= "${REPO_URL_SNAPSHOT}"
+} else {
+    ext.deployUrl= "${REPO_URL_RELEASE}"
+}
+
+artifacts {
+    archives jar
+    archives javadocJar
+    archives sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+            repository(url: deployUrl) {
+                authentication(userName: deployUsername, password: deployPassword)
+            }
+
+            pom.project {
+                description "$DESCRIPTION"
+                url "$PROJECT_URL"
+
+                scm {
+                    url "scm:$SCM_URL"
+                    connection "scm:$SCM_URL"
+                    developerConnection "scm:$SCM_URL"
+                }
+
+                licenses {
+                    license {
+                        name "$LICENSE_NAME"
+                        url "$LICENSE_URL"
+                        distribution 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id "$DEVELOPER_ID"
+                        name "$DEVELOPER_NAME"
+                    }
+                }
+            }
+        }
+    }
+}
