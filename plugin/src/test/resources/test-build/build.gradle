@@ -68,6 +68,7 @@ task validateSymUnzip(dependsOn:runSymUnzip) << {
 task runGradleZip(type:Zip, dependsOn:makeTestData) {
     from file(makeTestData.outputs.files.first())
     archiveName "gradle-zip.zip"
+    into inZipDir
 }
 
 task runGradleUnzip(type:Copy, dependsOn:runGradleZip) {
@@ -81,14 +82,14 @@ task validateGradleUnzip(dependsOn:runGradleUnzip) << {
 
     // make sure the file roundtripped
     def file1Contents= file("$testDataDir/$testFile").text
-    def file2Contents= file("$symUnzipDir/$testFile").text
+    def file2Contents= file("$symUnzipDir/$inZipDir/$testFile").text
     if (file1Contents != file2Contents) {
         throw new GradleException("file contents doesn't match")
     }
 
     // make sure the symbolic links roundtripped
     [ testSymFile, testSymDir ].each { f ->
-        def filePath = file("$symUnzipDir/$f").toPath()
+        def filePath = file("$symUnzipDir/$inZipDir/$f").toPath()
         if (Files.isSymbolicLink(filePath)) {
             throw new GradleException("symbolic link unexpectedly preserved")
         }
