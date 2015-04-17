@@ -61,6 +61,7 @@ uploadArchives {
             }
 
             pom.project {
+                name project.name
                 description "$DESCRIPTION"
                 url "$PROJECT_URL"
 
