@@ -18,8 +18,8 @@ import org.paleozogt.gradle.zip.*;
 import java.nio.file.Files;
 
 ext.testDir    = "foo"
-ext.testFile   = "$testDir/bar.txt"
-ext.testSymFile= "symfile.txt"
+ext.testFile   = "$testDir/bar"
+ext.testSymFile= "symfile"
 ext.testSymDir = "symdir"
 ext.inZipDir   = "test"
 
@@ -28,7 +28,8 @@ task makeTestData() {
     outputs.file testDataDir
     doLast {
         file("$testDataDir/$testDir").mkdirs()
-        file("$testDataDir/$testFile").write("this is a test")
+        file("$testDataDir/$testFile").write("echo 'this is a test'")
+        file("$testDataDir/$testFile").setExecutable(true)
         ant.symlink(link: file("$testDataDir/$testSymFile"), resource: testFile)
         ant.symlink(link: file("$testDataDir/$testSymDir") , resource: testDir)
     }
