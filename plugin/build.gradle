@@ -1,6 +1,6 @@
 apply plugin: 'groovy'
 apply plugin: 'signing'
-apply plugin: 'maven-publish'
+apply plugin: 'maven'
 
 repositories {
     mavenCentral()
@@ -13,43 +13,30 @@ dependencies {
     compile 'commons-io:commons-io:2.4'
 }
 
-signing {
-    sign jar
+
+artifacts {
+    jar
 }
 
-publishing {
+signing {
+    sign configurations.archives
+}
+
+group "$GROUPID"
+ext.deployUsername= project.hasProperty('REPO_USERNAME') ? "$REPO_USERNAME" : ""
+ext.deployPassword= project.hasProperty('REPO_PASSWORD') ? "$REPO_PASSWORD" : ""
+if(project.version.toString().endsWith('-SNAPSHOT')) {
+    ext.deployUrl= "${REPO_URL}/repositories/snapshots"
+} else {
+    ext.deployUrl= "${REPO_URL}/repositories/releases"
+}
+
+uploadArchives {
     repositories {
-        if (project.hasProperty('REPO_URL')) {
-            maven {
-                credentials {
-                    username project.hasProperty('REPO_USERNAME') ? "$REPO_USERNAME" : ""
-                    password project.hasProperty('REPO_PASSWORD') ? "$REPO_PASSWORD" : ""
-                }
-                if(project.version.toString().endsWith('-SNAPSHOT')) {
-                    url "${REPO_URL}/repositories/snapshots"
-                } else {
-                    url "${REPO_URL}/repositories/releases"
-                }
-            }
-        }
-    }
-
-    publications {
-        plugin(MavenPublication) {
-            groupId rootProject.groupId
-            artifact jar
-
-            // workaround bug in maven-publish where it doesn't bring dependencies into the pom
-            pom.withXml {
-                def depsNode= asNode().appendNode('dependencies')
-                project.configurations.compile.allDependencies.each { dep ->
-                    if (dep.version == null) return;
-                    def depNode= depsNode.appendNode('dependency')
-                    depNode.appendNode('groupId', dep.group)
-                    depNode.appendNode('artifactId', dep.name)
-                    depNode.appendNode('version', dep.version)
-                    depNode.appendNode('scope', 'runtime')
-                }
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+            repository(url: deployUrl) {
+                authentication(userName: deployUsername, password: deployPassword)
             }
         }
     }
