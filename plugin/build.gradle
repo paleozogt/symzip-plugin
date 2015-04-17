@@ -26,9 +26,9 @@ group "$GROUPID"
 ext.deployUsername= project.hasProperty('REPO_USERNAME') ? "$REPO_USERNAME" : ""
 ext.deployPassword= project.hasProperty('REPO_PASSWORD') ? "$REPO_PASSWORD" : ""
 if(project.version.toString().endsWith('-SNAPSHOT')) {
-    ext.deployUrl= "${REPO_URL}/repositories/snapshots"
+    ext.deployUrl= "${REPO_URL_SNAPSHOT}"
 } else {
-    ext.deployUrl= "${REPO_URL}/repositories/releases"
+    ext.deployUrl= "${REPO_URL_RELEASE}"
 }
 
 uploadArchives {
