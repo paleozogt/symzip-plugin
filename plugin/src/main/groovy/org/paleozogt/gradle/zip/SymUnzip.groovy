@@ -118,8 +118,22 @@ class SymUnzip extends AbstractCopyTask {
                         Files.createSymbolicLink(entryFile.toPath(), linkEntryFile.toPath());
                     } else if (!entry.isDirectory()) {
                         IOUtils.copy(zipFile.getInputStream(entry), new FileOutputStream(entryFile));
+                        getFileSystem().chmod(entryFile, getEntryMode(entry));
                     }
                 }
+            }
+
+            protected static int getEntryMode(ZipArchiveEntry entry) {
+                int unixMode = entry.getUnixMode() & 0777;
+                if(unixMode == 0){
+                    //no mode infos available - fall back to defaults
+                    if(isDirectory()){
+                        unixMode = FileSystem.DEFAULT_DIR_MODE;
+                    }else{
+                        unixMode = FileSystem.DEFAULT_FILE_MODE;
+                    }
+                }
+                return unixMode;
             }
 
             protected static String getEntryContents(ZipFile zipFile, ZipArchiveEntry entry) throws IOException {
