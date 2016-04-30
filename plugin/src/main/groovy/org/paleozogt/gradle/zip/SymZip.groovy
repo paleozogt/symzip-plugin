@@ -88,7 +88,7 @@ class SymZip extends AbstractArchiveTask {
             private Boolean isChildOf(File dir, File file) {
                 File parent= file.getParentFile();
                 while (parent != null) {
-                    if (dir.toString() == parent.toString()) return true;
+                    if (dir.toString().equals(parent.toString())) return true;
                     parent= parent.getParentFile();
                 }
                 return false;
