@@ -62,10 +62,12 @@ class SymZip extends AbstractArchiveTask {
 
             public void processFile(FileCopyDetailsInternal details) {
                 getLogger().debug("processFile {}", details);
-                if (isSymLink(details)) {
-                    visitSymLink(details);
-                } else if (!details.isDirectory() && !isChildOfVisitedSymlink(details)) {
-                    visitFile(details);
+                if (!isChildOfVisitedSymlink(details)) {
+                    if (isSymLink(details)) {
+                        visitSymLink(details);
+                    } else if (!details.isDirectory()) {
+                        visitFile(details);
+                    }
                 }
             }
 
@@ -78,9 +80,12 @@ class SymZip extends AbstractArchiveTask {
             }
 
             private Boolean isChildOfVisitedSymlink(FileCopyDetails fileDetails) {
-                File file= fileDetails.getFile();
-                for (File symLink : visitedSymLinks) {
-                    if (isChildOf(symLink, file)) return true;
+                try {
+                    File file = fileDetails.getFile();
+                    for (File symLink : visitedSymLinks) {
+                        if (isChildOf(symLink, file)) return true;
+                    }
+                } catch (Exception e) {
                 }
                 return false;
             }

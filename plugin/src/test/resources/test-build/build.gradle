@@ -21,6 +21,7 @@ ext.testDir    = "foo"
 ext.testFile   = "$testDir/bar"
 ext.testSymFile= "symfile"
 ext.testSymDir = "symdir"
+ext.testSymFileInDir= "$testDir/$testSymFile"
 ext.inZipDir   = "test"
 
 task makeTestData() {
@@ -33,6 +34,7 @@ task makeTestData() {
         file("$testDataDir/$testFile").setWritable(false)
         ant.symlink(link: file("$testDataDir/$testSymFile"), resource: testFile)
         ant.symlink(link: file("$testDataDir/$testSymDir") , resource: testDir)
+        ant.symlink(link: file("$testDataDir/$testSymFileInDir"), resource: file(testFile).name)
     }
 }
 
@@ -59,7 +61,7 @@ task validateSymUnzip(dependsOn:runSymUnzip) << {
     }
 
     // make sure the symbolic links roundtripped
-    [ testSymFile, testSymDir ].each { f ->
+    [ testSymFile, testSymDir, testSymFileInDir ].each { f ->
         def filePath = file("$symUnzipDir/$inZipDir/$f").toPath()
         if (!Files.isSymbolicLink(filePath)) {
             throw new GradleException("symbolic link not preserved")
@@ -90,7 +92,7 @@ task validateGradleUnzip(dependsOn:runGradleUnzip) << {
     }
 
     // make sure the symbolic links roundtripped
-    [ testSymFile, testSymDir ].each { f ->
+    [ testSymFile, testSymDir, testSymFileInDir ].each { f ->
         def filePath = file("$symUnzipDir/$inZipDir/$f").toPath()
         if (Files.isSymbolicLink(filePath)) {
             throw new GradleException("symbolic link unexpectedly preserved")
