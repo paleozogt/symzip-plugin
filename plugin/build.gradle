@@ -10,7 +10,7 @@ dependencies {
     compile gradleApi()
     compile localGroovy()
     compile 'org.apache.commons:commons-compress:1.13'
-    compile 'commons-io:commons-io:2.4'
+    compile 'commons-io:commons-io:2.5'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {

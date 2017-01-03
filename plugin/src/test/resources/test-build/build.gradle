@@ -11,7 +11,7 @@ buildscript {
     dependencies {
         classpath("org.paleozogt:symzip-plugin:")
         classpath 'org.apache.commons:commons-compress:1.13'
-        classpath 'commons-io:commons-io:2.4'
+        classpath 'commons-io:commons-io:2.5'
     }
 }
 import org.paleozogt.gradle.zip.*;
