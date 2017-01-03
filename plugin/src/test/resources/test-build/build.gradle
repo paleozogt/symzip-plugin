@@ -10,7 +10,7 @@ buildscript {
     }
     dependencies {
         classpath("org.paleozogt:symzip-plugin:")
-        classpath 'org.apache.commons:commons-compress:1.9'
+        classpath 'org.apache.commons:commons-compress:1.13'
         classpath 'commons-io:commons-io:2.4'
     }
 }
