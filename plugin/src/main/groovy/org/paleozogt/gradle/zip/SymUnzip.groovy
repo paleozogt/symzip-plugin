@@ -116,7 +116,10 @@ class SymUnzip extends AbstractCopyTask {
                         String linkEntry= getEntryContents(zipFile, entry);
                         File linkEntryFile= new File(linkEntry);
                         Files.createSymbolicLink(entryFile.toPath(), linkEntryFile.toPath());
-                    } else if (!entry.isDirectory()) {
+                    } else if (entry.isDirectory()) {
+                        entryFile.mkdir();
+                        getFileSystem().chmod(entryFile, getEntryMode(entry));
+                    } else {
                         IOUtils.copy(zipFile.getInputStream(entry), new FileOutputStream(entryFile));
                         getFileSystem().chmod(entryFile, getEntryMode(entry));
                     }

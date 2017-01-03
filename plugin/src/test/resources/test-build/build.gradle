@@ -21,7 +21,9 @@ ext.testDir    = "foo"
 ext.testFile   = "$testDir/bar"
 ext.testSymFile= "symfile"
 ext.testSymDir = "symdir"
+ext.testEmptyDir= "emptydir"
 ext.testSymFileInDir= "$testDir/$testSymFile"
+ext.testEmptyFileInDir= "$testDir/$testEmptyDir"
 ext.inZipDir   = "test"
 
 task makeTestData() {
@@ -29,6 +31,8 @@ task makeTestData() {
     outputs.file testDataDir
     doLast {
         file("$testDataDir/$testDir").mkdirs()
+        file("$testDataDir/$testEmptyDir").mkdirs()
+        file("$testDataDir/$testEmptyFileInDir").mkdirs()
         file("$testDataDir/$testFile").write("echo 'this is a test'")
         file("$testDataDir/$testFile").setExecutable(true)
         file("$testDataDir/$testFile").setWritable(false)
@@ -52,6 +56,10 @@ task runSymUnzip(type:SymUnzip, dependsOn:runSymZip) {
 task validateSymUnzip(dependsOn:runSymUnzip) << {
     def testDataDir= makeTestData.outputs.files.first()
     def symUnzipDir= runSymUnzip.outputs.files.first()
+
+    if (testDataDir.list() != file("$symUnzipDir/$inZipDir").list()) {
+        throw new GradleException("folder contents doesn't match " + testDataDir.list() + ";\n" + file("$symUnzipDir/$inZipDir").list())
+    }
 
     // make sure the file roundtripped
     def file1Contents= file("$testDataDir/$testFile").text
@@ -83,6 +91,10 @@ task runGradleUnzip(type:Copy, dependsOn:runGradleZip) {
 task validateGradleUnzip(dependsOn:runGradleUnzip) << {
     def testDataDir= makeTestData.outputs.files.first()
     def symUnzipDir= runGradleUnzip.outputs.files.first()
+
+    if (testDataDir.list() != file("$symUnzipDir/$inZipDir").list()) {
+        throw new GradleException("folder contents doesn't match")
+    }
 
     // make sure the file roundtripped
     def file1Contents= file("$testDataDir/$testFile").text
