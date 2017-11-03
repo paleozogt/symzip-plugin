@@ -120,7 +120,9 @@ class SymUnzip extends AbstractCopyTask {
                         entryFile.mkdir();
                         getFileSystem().chmod(entryFile, getEntryMode(entry));
                     } else {
-                        IOUtils.copy(zipFile.getInputStream(entry), new FileOutputStream(entryFile));
+                        FileOutputStream outputStream = new FileOutputStream(entryFile);
+                        IOUtils.copy(zipFile.getInputStream(entry), outputStream);
+                        outputStream.close();
                         getFileSystem().chmod(entryFile, getEntryMode(entry));
                     }
                 }
