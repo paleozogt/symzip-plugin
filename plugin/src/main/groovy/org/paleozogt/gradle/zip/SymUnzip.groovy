@@ -105,7 +105,7 @@ class SymUnzip extends AbstractCopyTask {
             protected void explodeZip(FileCopyDetails fileDetails, File target) {
                 ZipFile zipFile= new ZipFile(fileDetails.getFile());
                 try {
-                  // TODO: for-each?
+                // TODO: for-each?
                   Enumeration entries= zipFile.getEntries();
                   while (entries.hasMoreElements()) {
                       ZipArchiveEntry entry=(ZipArchiveEntry)entries.nextElement();
@@ -120,16 +120,14 @@ class SymUnzip extends AbstractCopyTask {
                           entryFile.mkdir();
                           getFileSystem().chmod(entryFile, getEntryMode(entry));
                       } else {
-                          FileOutputStream outputStream = new FileOutputStream(entryFile);
-                          IOUtils.copy(zipFile.getInputStream(entry), outputStream);
-                          outputStream.close();
+                          copyStreamToFile(zipFile.getInputStream(entry), entryFile);
                           getFileSystem().chmod(entryFile, getEntryMode(entry));
                       }
+                    }
                   }
-                }
-                finally {
-                  ZipFile.closeQuietly( zipFile )
-                }
+                  finally {
+                    ZipFile.closeQuietly( zipFile )
+                  }
             }
 
             protected static int getEntryMode(ZipArchiveEntry entry) {
@@ -150,6 +148,16 @@ class SymUnzip extends AbstractCopyTask {
                 ByteArrayOutputStream contents= new ByteArrayOutputStream();
                 IOUtils.copy(entryStream, contents);
                 return contents.toString();
+            }
+
+            protected static void copyStreamToFile(InputStream inputStream, File outputFile) {
+                OutputStream outputStream= null;
+                try {
+                    outputStream= new FileOutputStream(outputFile);
+                    IOUtils.copy(inputStream, outputStream);
+                } finally {
+                    IOUtils.closeQuietly(outputStream);
+                }
             }
         }
     }
