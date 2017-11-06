@@ -104,26 +104,30 @@ class SymUnzip extends AbstractCopyTask {
 
             protected void explodeZip(FileCopyDetails fileDetails, File target) {
                 ZipFile zipFile= new ZipFile(fileDetails.getFile());
-
+                try {
                 // TODO: for-each?
-                Enumeration entries= zipFile.getEntries();
-                while (entries.hasMoreElements()) {
-                    ZipArchiveEntry entry=(ZipArchiveEntry)entries.nextElement();
-                    File entryFile= new File(target, entry.getName());
-                    entryFile.getParentFile().mkdirs();
-                    getLogger().debug("zip entry {} mode={} symlink={}", entry, entry.getUnixMode(), entry.isUnixSymlink());
-                    if (entry.isUnixSymlink()) {
-                        String linkEntry= getEntryContents(zipFile, entry);
-                        File linkEntryFile= new File(linkEntry);
-                        Files.createSymbolicLink(entryFile.toPath(), linkEntryFile.toPath());
-                    } else if (entry.isDirectory()) {
-                        entryFile.mkdir();
-                        getFileSystem().chmod(entryFile, getEntryMode(entry));
-                    } else {
-                        copyStreamToFile(zipFile.getInputStream(entry), entryFile);
-                        getFileSystem().chmod(entryFile, getEntryMode(entry));
+                  Enumeration entries= zipFile.getEntries();
+                  while (entries.hasMoreElements()) {
+                      ZipArchiveEntry entry=(ZipArchiveEntry)entries.nextElement();
+                      File entryFile= new File(target, entry.getName());
+                      entryFile.getParentFile().mkdirs();
+                      getLogger().debug("zip entry {} mode={} symlink={}", entry, entry.getUnixMode(), entry.isUnixSymlink());
+                      if (entry.isUnixSymlink()) {
+                          String linkEntry= getEntryContents(zipFile, entry);
+                          File linkEntryFile= new File(linkEntry);
+                          Files.createSymbolicLink(entryFile.toPath(), linkEntryFile.toPath());
+                      } else if (entry.isDirectory()) {
+                          entryFile.mkdir();
+                          getFileSystem().chmod(entryFile, getEntryMode(entry));
+                      } else {
+                          copyStreamToFile(zipFile.getInputStream(entry), entryFile);
+                          getFileSystem().chmod(entryFile, getEntryMode(entry));
+                      }
                     }
-                }
+                  }
+                  finally {
+                    ZipFile.closeQuietly( zipFile )
+                  }
             }
 
             protected static int getEntryMode(ZipArchiveEntry entry) {
