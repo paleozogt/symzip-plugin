@@ -1,28 +1,22 @@
 package org.paleozogt.gradle.zip
 
-import org.gradle.api.tasks.bundling.AbstractArchiveTask
+import org.apache.commons.compress.archivers.zip.UnixStat
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream.UnicodeExtraFieldPolicy
+import org.gradle.api.GradleException
+import org.gradle.api.file.FileCopyDetails
+import org.gradle.api.internal.file.CopyActionProcessingStreamAction
 import org.gradle.api.internal.file.copy.CopyAction
-import org.gradle.api.tasks.TaskAction
-import org.gradle.api.GradleException;
-import org.gradle.api.tasks.WorkResult;
+import org.gradle.api.internal.file.copy.CopyActionProcessingStream
+import org.gradle.api.internal.file.copy.FileCopyDetailsInternal
+import org.gradle.api.internal.tasks.SimpleWorkResult
+import org.gradle.api.tasks.WorkResult
+import org.gradle.api.tasks.bundling.AbstractArchiveTask
 
-import org.gradle.api.internal.file.copy.CopyActionProcessingStream;
-import org.gradle.api.internal.file.CopyActionProcessingStreamAction;
-import org.gradle.api.internal.tasks.SimpleWorkResult;
-import org.gradle.api.internal.file.copy.FileCopyDetailsInternal;
-import org.gradle.api.file.FileCopyDetails;
-
-import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream.UnicodeExtraFieldPolicy;
-import org.apache.commons.compress.archivers.zip.UnixStat;
-import org.apache.commons.compress.archivers.ArchiveEntry;
-
-import java.nio.file.Path;
-import java.nio.file.Files;
-import java.nio.charset.Charset;
-
-import org.slf4j.Logger
+import java.nio.charset.Charset
+import java.nio.file.Files
+import java.nio.file.Path
 
 class SymZip extends AbstractArchiveTask {
     public CommonsZipTask() {

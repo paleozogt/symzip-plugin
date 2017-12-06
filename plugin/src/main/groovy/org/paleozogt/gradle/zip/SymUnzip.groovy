@@ -1,33 +1,21 @@
 package org.paleozogt.gradle.zip
 
-import org.gradle.api.tasks.TaskAction
-import org.gradle.api.tasks.WorkResult;
-import org.gradle.api.tasks.AbstractCopyTask;
-import org.gradle.api.internal.file.copy.CopyAction;
-import org.gradle.api.internal.file.copy.CopyActionProcessingStream;
-import org.gradle.api.InvalidUserDataException;
-import org.gradle.api.internal.file.FileResolver;
-import org.gradle.api.internal.file.CopyActionProcessingStreamAction;
-import org.gradle.api.internal.tasks.SimpleWorkResult;
-import org.gradle.api.file.FileCopyDetails;
-import org.gradle.api.internal.file.copy.FileCopyDetailsInternal;
-import org.gradle.api.tasks.OutputDirectory;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
+import org.apache.commons.compress.archivers.zip.ZipFile
+import org.apache.commons.io.IOUtils
+import org.gradle.api.InvalidUserDataException
+import org.gradle.api.file.FileCopyDetails
+import org.gradle.api.internal.file.CopyActionProcessingStreamAction
+import org.gradle.api.internal.file.FileResolver
+import org.gradle.api.internal.file.copy.*
+import org.gradle.api.internal.tasks.SimpleWorkResult
+import org.gradle.api.tasks.AbstractCopyTask
+import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.WorkResult
+import org.gradle.internal.reflect.Instantiator
+import org.paleozogt.gradle.zip.SymUnzip.FileCopyAction
 
-import org.gradle.api.internal.file.copy.CopySpecInternal;
-import org.gradle.api.internal.file.copy.DestinationRootCopySpec;
-import org.gradle.internal.reflect.Instantiator;
-
-import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream.UnicodeExtraFieldPolicy;
-import org.apache.commons.compress.archivers.zip.ZipFile;
-import org.apache.commons.compress.archivers.zip.UnixStat;
-import org.apache.commons.compress.archivers.ArchiveEntry;
-
-import java.nio.file.Files;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.FilenameUtils;
+import java.nio.file.Files
 
 class SymUnzip extends AbstractCopyTask {
     @Override
@@ -90,11 +78,10 @@ class SymUnzip extends AbstractCopyTask {
             public void processFile(FileCopyDetailsInternal details) {
                 File target = fileResolver.resolve(details.getRelativePath().getPathString());
 
-                String sourceExt = FilenameUtils.getExtension(details.getFile().toString()).toLowerCase();
-                if (sourceExt.equals("zip")) {
+                try {
                     explodeZip(details, target.getParentFile());
                     didWork= true;
-                } else {
+                } catch (IOException e) {
                     boolean copied = details.copyTo(target);
                     if (copied) {
                         didWork = true;

@@ -112,6 +112,12 @@ task validateGradleUnzip(dependsOn:runGradleUnzip) << {
     }
 }
 
-task validate(dependsOn:[validateSymUnzip,validateGradleUnzip])
+task runSymUnzipOnNonZip(type:SymUnzip, dependsOn:makeTestData) {
+    def testDataDir= makeTestData.outputs.files.first()
+    from testDataDir
+    into file("$buildDir/regular-copy")
+}
+
+task validate(dependsOn:[validateSymUnzip,validateGradleUnzip,runSymUnzipOnNonZip])
 
 build.dependsOn(validate)
