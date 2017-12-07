@@ -12,6 +12,7 @@ import org.gradle.api.internal.tasks.SimpleWorkResult
 import org.gradle.api.tasks.AbstractCopyTask
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.WorkResult
+import org.gradle.internal.nativeintegration.filesystem.FileSystem
 import org.gradle.internal.reflect.Instantiator
 import org.paleozogt.gradle.zip.SymUnzip.FileCopyAction
 
@@ -115,11 +116,11 @@ class SymUnzip extends AbstractCopyTask {
 
             protected static int getEntryMode(ZipArchiveEntry entry) {
                 int unixMode = entry.getUnixMode() & 0777;
-                if(unixMode == 0){
+                if (unixMode == 0) {
                     //no mode infos available - fall back to defaults
-                    if(isDirectory()){
+                    if (entry.isDirectory()){
                         unixMode = FileSystem.DEFAULT_DIR_MODE;
-                    }else{
+                    } else{
                         unixMode = FileSystem.DEFAULT_FILE_MODE;
                     }
                 }
