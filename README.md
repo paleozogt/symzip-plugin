@@ -14,6 +14,12 @@ buildscript {
         classpath 'org.paleozogt:symzip-plugin:0.9.4'
     }
 }
+
+apply plugin: "org.paleozogt.symzip"
+
+import org.paleozogt.gradle.zip.SymUnZip;
+import org.paleozogt.gradle.zip.SymZip;
+
 ```
 
 ## Zipping
