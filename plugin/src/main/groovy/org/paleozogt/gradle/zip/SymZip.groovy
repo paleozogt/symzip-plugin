@@ -10,8 +10,8 @@ import org.gradle.api.internal.file.CopyActionProcessingStreamAction
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.CopyActionProcessingStream
 import org.gradle.api.internal.file.copy.FileCopyDetailsInternal
-import org.gradle.api.internal.tasks.SimpleWorkResult
 import org.gradle.api.tasks.WorkResult
+import org.gradle.api.tasks.WorkResults
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 
 import java.nio.charset.Charset
@@ -43,7 +43,7 @@ class SymZip extends AbstractArchiveTask {
 
             stream.process(new StreamAction(zipOutStr));
             zipOutStr.close();
-            return new SimpleWorkResult(true);
+            return WorkResults.didWork(true);
         }
 
         private class StreamAction implements CopyActionProcessingStreamAction {

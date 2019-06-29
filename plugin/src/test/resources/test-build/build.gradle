@@ -53,26 +53,28 @@ task runSymUnzip(type:SymUnzip, dependsOn:runSymZip) {
     into file("$buildDir/unzip/sym-unzip")
 }
 
-task validateSymUnzip(dependsOn:runSymUnzip) << {
-    def testDataDir= makeTestData.outputs.files.first()
-    def symUnzipDir= runSymUnzip.outputs.files.first()
+task validateSymUnzip(dependsOn:runSymUnzip) {
+    doLast {
+        def testDataDir= makeTestData.outputs.files.first()
+        def symUnzipDir= runSymUnzip.outputs.files.first()
 
-    if (testDataDir.list() != file("$symUnzipDir/$inZipDir").list()) {
-        throw new GradleException("folder contents doesn't match " + testDataDir.list() + ";\n" + file("$symUnzipDir/$inZipDir").list())
-    }
+        if (testDataDir.list() != file("$symUnzipDir/$inZipDir").list()) {
+            throw new GradleException("folder contents doesn't match " + testDataDir.list() + ";\n" + file("$symUnzipDir/$inZipDir").list())
+        }
 
-    // make sure the file roundtripped
-    def file1Contents= file("$testDataDir/$testFile").text
-    def file2Contents= file("$symUnzipDir/$inZipDir/$testFile").text
-    if (file1Contents != file2Contents) {
-        throw new GradleException("file contents doesn't match")
-    }
+        // make sure the file roundtripped
+        def file1Contents= file("$testDataDir/$testFile").text
+        def file2Contents= file("$symUnzipDir/$inZipDir/$testFile").text
+        if (file1Contents != file2Contents) {
+            throw new GradleException("file contents doesn't match")
+        }
 
-    // make sure the symbolic links roundtripped
-    [ testSymFile, testSymDir, testSymFileInDir ].each { f ->
-        def filePath = file("$symUnzipDir/$inZipDir/$f").toPath()
-        if (!Files.isSymbolicLink(filePath)) {
-            throw new GradleException("symbolic link not preserved")
+        // make sure the symbolic links roundtripped
+        [ testSymFile, testSymDir, testSymFileInDir ].each { f ->
+            def filePath = file("$symUnzipDir/$inZipDir/$f").toPath()
+            if (!Files.isSymbolicLink(filePath)) {
+                throw new GradleException("symbolic link not preserved")
+            }
         }
     }
 }
@@ -88,26 +90,28 @@ task runGradleUnzip(type:Copy, dependsOn:runGradleZip) {
     into file("$buildDir/unzip/gradle-unzip")
 }
 
-task validateGradleUnzip(dependsOn:runGradleUnzip) << {
-    def testDataDir= makeTestData.outputs.files.first()
-    def symUnzipDir= runGradleUnzip.outputs.files.first()
+task validateGradleUnzip(dependsOn:runGradleUnzip) {
+    doLast {
+        def testDataDir= makeTestData.outputs.files.first()
+        def symUnzipDir= runGradleUnzip.outputs.files.first()
 
-    if (testDataDir.list() != file("$symUnzipDir/$inZipDir").list()) {
-        throw new GradleException("folder contents doesn't match")
-    }
+        if (testDataDir.list() != file("$symUnzipDir/$inZipDir").list()) {
+            throw new GradleException("folder contents doesn't match")
+        }
 
-    // make sure the file roundtripped
-    def file1Contents= file("$testDataDir/$testFile").text
-    def file2Contents= file("$symUnzipDir/$inZipDir/$testFile").text
-    if (file1Contents != file2Contents) {
-        throw new GradleException("file contents doesn't match")
-    }
+        // make sure the file roundtripped
+        def file1Contents= file("$testDataDir/$testFile").text
+        def file2Contents= file("$symUnzipDir/$inZipDir/$testFile").text
+        if (file1Contents != file2Contents) {
+            throw new GradleException("file contents doesn't match")
+        }
 
-    // make sure the symbolic links roundtripped
-    [ testSymFile, testSymDir, testSymFileInDir ].each { f ->
-        def filePath = file("$symUnzipDir/$inZipDir/$f").toPath()
-        if (Files.isSymbolicLink(filePath)) {
-            throw new GradleException("symbolic link unexpectedly preserved")
+        // make sure the symbolic links roundtripped
+        [ testSymFile, testSymDir, testSymFileInDir ].each { f ->
+            def filePath = file("$symUnzipDir/$inZipDir/$f").toPath()
+            if (Files.isSymbolicLink(filePath)) {
+                throw new GradleException("symbolic link unexpectedly preserved")
+            }
         }
     }
 }

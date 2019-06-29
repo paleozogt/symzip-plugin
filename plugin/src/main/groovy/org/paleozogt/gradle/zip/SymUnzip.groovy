@@ -8,7 +8,7 @@ import org.gradle.api.file.FileCopyDetails
 import org.gradle.api.internal.file.CopyActionProcessingStreamAction
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.internal.file.copy.*
-import org.gradle.api.internal.tasks.SimpleWorkResult
+import org.gradle.api.tasks.WorkResults
 import org.gradle.api.tasks.AbstractCopyTask
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.WorkResult
@@ -70,7 +70,7 @@ class SymUnzip extends AbstractCopyTask {
         public WorkResult execute(CopyActionProcessingStream stream) {
             FileCopyDetailsInternalAction action = new FileCopyDetailsInternalAction();
             stream.process(action);
-            return new SimpleWorkResult(action.didWork);
+            return WorkResults.didWork(action.didWork);
         }
 
         private class FileCopyDetailsInternalAction implements CopyActionProcessingStreamAction {

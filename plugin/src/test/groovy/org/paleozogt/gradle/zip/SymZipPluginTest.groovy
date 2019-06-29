@@ -26,7 +26,6 @@ class SymZipPluginTest {
         Project project = ProjectBuilder.builder().build()
         def task = project.task('testTask', type: SymZip)
         assertTrue(task instanceof SymZip)
-        task.execute();
     }
 
     @Test
