@@ -108,10 +108,10 @@ class SymUnzip extends AbstractCopyTask {
                             Files.createSymbolicLink(entryFile.toPath(), linkEntryFile.toPath());
                         } else if (entry.isDirectory()) {
                             entryFile.mkdir();
-                            getFileSystem().chmod(entryFile, getEntryMode(entry));
+                            chmod(entryFile, getEntryMode(entry));
                         } else {
                             copyStreamToFile(zipFile.getInputStream(entry), entryFile);
-                            getFileSystem().chmod(entryFile, getEntryMode(entry));
+                            chmod(entryFile, getEntryMode(entry));
                         }
                     }
                 } finally {
@@ -146,6 +146,14 @@ class SymUnzip extends AbstractCopyTask {
                     IOUtils.copy(inputStream, outputStream);
                 } finally {
                     IOUtils.closeQuietly(outputStream);
+                }
+            }
+
+            protected void chmod(File file, int mode) {
+                try {
+                    getFileSystem().chmod(file, mode);
+                } catch (Exception e) {
+                    logger.debug("{}", e.getMessage());
                 }
             }
         }
