@@ -11,7 +11,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'org.paleozogt:symzip-plugin:0.10.0'
+        classpath 'org.paleozogt:symzip-plugin:0.10.1'
     }
 }
 
