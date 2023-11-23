@@ -42,6 +42,12 @@ task makeTestData() {
     }
 }
 
+task cleanBuildDirectory(type: Delete) {
+    delete("$buildDir")
+}
+
+makeTestData.dependsOn(cleanBuildDirectory)
+
 task runSymZip(type:SymZip, dependsOn:makeTestData) {
     from file(makeTestData.outputs.files.first())
     archiveName "sym-zip.zip"
